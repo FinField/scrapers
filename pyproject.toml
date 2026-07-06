@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finscrapers"
+version = "0.1.0"
+description = "Ready-to-run FinField scrapers: SEC EDGAR fundamentals, Stooq equity prices, CoinGecko crypto — pure Python, stdlib HTTP, normalized to FinFacts"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = ["finfacts"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../facts/src"]
+testpaths = ["tests"]
