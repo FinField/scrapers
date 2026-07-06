@@ -12,12 +12,14 @@ from typing import Optional
 from .base import FactSource
 from .coingecko import CoinGeckoSource
 from .coingecko_supply import CoinGeckoSupplySource
+from .esef import EsefSource
 from .sec_edgar import SecEdgarSource
 from .stooq import StooqSource
 from .wikidata import WikidataSource
 
 READY: dict[str, type[FactSource]] = {
     SecEdgarSource.kind: SecEdgarSource,      # US fundamentals, audited XBRL
+    EsefSource.kind: EsefSource,              # EU/EEA fundamentals, audited IFRS (by LEI)
     StooqSource.kind: StooqSource,            # equity end-of-day prices
     CoinGeckoSource.kind: CoinGeckoSource,    # crypto daily close/volume
     CoinGeckoSupplySource.kind: CoinGeckoSupplySource,  # crypto supply — int, date-coupled
