@@ -12,18 +12,22 @@ from typing import Optional
 from .base import FactSource
 from .coingecko import CoinGeckoSource
 from .coingecko_supply import CoinGeckoSupplySource
+from .ecb import EcbSource
 from .esef import EsefSource
 from .sec_edgar import SecEdgarSource
+from .sec_submissions import SecSubmissionsSource
 from .stooq import StooqSource
 from .wikidata import WikidataSource
 
 READY: dict[str, type[FactSource]] = {
     SecEdgarSource.kind: SecEdgarSource,      # US fundamentals, audited XBRL
+    SecSubmissionsSource.kind: SecSubmissionsSource,  # SIC classification — feeds the sector/industry lenses
     EsefSource.kind: EsefSource,              # EU/EEA fundamentals, audited IFRS (by LEI)
     StooqSource.kind: StooqSource,            # equity end-of-day prices
     CoinGeckoSource.kind: CoinGeckoSource,    # crypto daily close/volume
     CoinGeckoSupplySource.kind: CoinGeckoSupplySource,  # crypto supply — int, date-coupled
     WikidataSource.kind: WikidataSource,      # founded (jdn) + employees — global identity facts
+    EcbSource.kind: EcbSource,                # euro-area macro (rates, FX, HICP) — feeds the MacroLens
 }
 
 
