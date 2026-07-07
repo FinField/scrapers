@@ -35,6 +35,25 @@ INDEX_URL = (BASE + "/api/filings?filter={filter}&sort=-date_added&page%5Bsize%5
 CORE_DIMS = {"concept", "entity", "period", "unit", "language"}
 
 
+def _geo_segment(dims: dict) -> "tuple | None":
+    """Geographic-segment qualifiers, or None when this isn't one.
+
+    A fact qualifies when every extra (non-core) dimension is a geographical
+    axis — IFRS `GeographicalAreasAxis` or a filer-extension axis whose local
+    name contains "geograph" — with a plain QName member. Mixed axes (e.g.
+    geography x product) stay out until the model needs them.
+    """
+    extra = {k: v for k, v in dims.items() if k not in CORE_DIMS}
+    if not extra:
+        return None
+    for axis, member in extra.items():
+        if "geograph" not in axis.split(":", 1)[-1].lower():
+            return None
+        if not isinstance(member, str):
+            return None  # typed dimensions carry structured values: out of scope
+    return tuple(sorted(extra.items()))
+
+
 def _inclusive(stamp: str) -> str:
     """OIM end-exclusive T00:00:00 stamp -> inclusive calendar date."""
     dt = datetime.fromisoformat(stamp)
@@ -99,8 +118,9 @@ class EsefSource(FactSource):
         src = Source(kind=self.kind, ref=fxo_id, fetched=today)
         for fact in doc.get("facts", {}).values():
             dims = fact.get("dimensions", {})
-            if set(dims) - CORE_DIMS:
-                continue  # segment/member breakdowns: not in the v1 model
+            segment = _geo_segment(dims)
+            if set(dims) - CORE_DIMS and segment is None:
+                continue  # non-geographic breakdowns: not in the model yet
             unit = dims.get("unit")
             period = dims.get("period")
             if not unit or not period:
@@ -124,4 +144,5 @@ class EsefSource(FactSource):
                 period=Period(start=start, end=end,
                               fiscal_year=int(end[:4]), fiscal_period="FY"),
                 source=src,
+                dimensions=segment or (),
             ))
