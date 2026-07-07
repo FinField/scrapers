@@ -9,6 +9,7 @@ from .coingecko import CoinGeckoSource  # noqa: F401
 from .coingecko_supply import CoinGeckoSupplySource  # noqa: F401
 from .ecb import MACRO_REGIONS, EcbSource  # noqa: F401
 from .esef import EsefSource  # noqa: F401
+from .onchain import OnchainSource  # noqa: F401
 from .registry import READY, all_sources  # noqa: F401
 from .sec_edgar import SecEdgarSource  # noqa: F401
 from .sec_submissions import SecSubmissionsSource  # noqa: F401

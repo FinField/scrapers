@@ -14,6 +14,7 @@ from .coingecko import CoinGeckoSource
 from .coingecko_supply import CoinGeckoSupplySource
 from .ecb import EcbSource
 from .esef import EsefSource
+from .onchain import OnchainSource
 from .sec_edgar import SecEdgarSource
 from .sec_submissions import SecSubmissionsSource
 from .stooq import StooqSource
@@ -28,6 +29,7 @@ READY: dict[str, type[FactSource]] = {
     CoinGeckoSupplySource.kind: CoinGeckoSupplySource,  # crypto supply — int, date-coupled
     WikidataSource.kind: WikidataSource,      # founded (jdn) + employees — global identity facts
     EcbSource.kind: EcbSource,                # euro-area macro (rates, FX, HICP) — feeds the MacroLens
+    OnchainSource.kind: OnchainSource,        # chain-native BTC/ETH facts — block-time-coupled integers
 }
 
 
