@@ -18,13 +18,15 @@ from .onchain import OnchainSource
 from .sec_edgar import SecEdgarSource
 from .sec_submissions import SecSubmissionsSource
 from .stooq import StooqSource
+from .yahoo_eod import YahooEodSource
 from .wikidata import WikidataSource
 
 READY: dict[str, type[FactSource]] = {
     SecEdgarSource.kind: SecEdgarSource,      # US fundamentals, audited XBRL
     SecSubmissionsSource.kind: SecSubmissionsSource,  # SIC classification — feeds the sector/industry lenses
     EsefSource.kind: EsefSource,              # EU/EEA fundamentals, audited IFRS (by LEI)
-    StooqSource.kind: StooqSource,            # equity end-of-day prices
+    YahooEodSource.kind: YahooEodSource,      # equity end-of-day prices (reliable, no JS PoW)
+    StooqSource.kind: StooqSource,            # equity end-of-day prices (legacy, now JS-walled)
     CoinGeckoSource.kind: CoinGeckoSource,    # crypto daily close/volume
     CoinGeckoSupplySource.kind: CoinGeckoSupplySource,  # crypto supply — int, date-coupled
     WikidataSource.kind: WikidataSource,      # founded (jdn) + employees — global identity facts
