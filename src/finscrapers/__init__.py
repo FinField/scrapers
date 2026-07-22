@@ -4,6 +4,7 @@ Every scraper implements the FactSource contract (covers/fetch) and
 normalizes one upstream into provenance-carrying FinFacts. Deployed on
 5mart.ml/finfield they run as knitting agents via finagents.
 """
+from .alphavantage import AlphaVantageSource  # noqa: F401
 from .base import FactSource  # noqa: F401
 from .coingecko import CoinGeckoSource  # noqa: F401
 from .coingecko_supply import CoinGeckoSupplySource  # noqa: F401

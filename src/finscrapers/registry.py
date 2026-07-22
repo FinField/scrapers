@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+from .alphavantage import AlphaVantageSource
 from .base import FactSource
 from .coingecko import CoinGeckoSource
 from .coingecko_supply import CoinGeckoSupplySource
@@ -25,6 +26,7 @@ READY: dict[str, type[FactSource]] = {
     SecSubmissionsSource.kind: SecSubmissionsSource,  # SIC classification — feeds the sector/industry lenses
     EsefSource.kind: EsefSource,              # EU/EEA fundamentals, audited IFRS (by LEI)
     StooqSource.kind: StooqSource,            # equity end-of-day prices
+    AlphaVantageSource.kind: AlphaVantageSource,  # US equity EOD fallback (opt-in, needs ALPHA_VANTAGE_API_KEY)
     CoinGeckoSource.kind: CoinGeckoSource,    # crypto daily close/volume
     CoinGeckoSupplySource.kind: CoinGeckoSupplySource,  # crypto supply — int, date-coupled
     WikidataSource.kind: WikidataSource,      # founded (jdn) + employees — global identity facts
