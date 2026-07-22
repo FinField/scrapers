@@ -2,6 +2,7 @@
 from decimal import Decimal
 
 from finfacts.model import Entity
+from finscrapers.alphavantage import AlphaVantageSource, av_symbol
 from finscrapers.coingecko import CoinGeckoSource, coin_id
 from finscrapers.stooq import StooqSource, stooq_symbol
 
@@ -50,3 +51,47 @@ def test_same_input_same_cid():
     a = StooqSource().normalize(Entity(ticker="AAPL US"), STOOQ_CSV, "test")
     b = StooqSource().normalize(Entity(ticker="AAPL US"), STOOQ_CSV, "test")
     assert [f.cid for f in a.facts] == [f.cid for f in b.facts]
+
+
+AV_DOC = {
+    "Meta Data": {"2. Symbol": "AAPL", "3. Last Refreshed": "2026-07-03"},
+    "Time Series (Daily)": {
+        "2026-07-02": {"1. open": "211.80", "2. high": "214.50", "3. low": "211.00",
+                        "4. close": "213.55", "5. volume": "48210000"},
+        "2026-07-03": {"1. open": "213.60", "2. high": "215.00", "3. low": "212.80",
+                        "4. close": "214.05", "5. volume": "39120000"},
+    },
+}
+
+
+def test_av_symbol():
+    assert av_symbol(Entity(ticker="AAPL US")) == "AAPL"
+    assert av_symbol(Entity(ticker="BTC CRYPTO")) is None
+    assert av_symbol(Entity(ticker="SIE DE")) is None  # non-US: not covered, not guessed at
+
+
+def test_alphavantage_covers_requires_key():
+    assert AlphaVantageSource(api_key=None).covers(Entity(ticker="AAPL US")) is False
+    assert AlphaVantageSource(api_key="demo").covers(Entity(ticker="AAPL US")) is True
+    assert AlphaVantageSource(api_key="demo").covers(Entity(ticker="BTC CRYPTO")) is False
+
+
+def test_alphavantage_normalize_exact():
+    fs = AlphaVantageSource(api_key="demo").normalize(Entity(ticker="AAPL US"), AV_DOC, "test")
+    closes = [f for f in fs.facts if f.concept == "finfield:close"]
+    vols = [f for f in fs.facts if f.concept == "finfield:volume"]
+    assert len(closes) == 2 and len(vols) == 2
+    last = max(closes, key=lambda f: f.period.end)
+    assert last.decimal == Decimal("214.05") and last.unit == "USD"
+    assert all(isinstance(f.value, int) for f in fs.facts)  # never floats
+
+
+def test_alphavantage_rejects_rate_limit_response():
+    limited = {"Information": "Thank you for using Alpha Vantage! Our standard API rate limit is 25 requests per day."}
+    assert AlphaVantageSource(api_key="demo").normalize(Entity(ticker="AAPL US"), limited, "test") is None
+
+
+def test_alphavantage_key_never_lands_in_provenance():
+    from finscrapers.alphavantage import public_ref
+    ref = public_ref("AAPL", "compact")
+    assert "apikey=***" in ref and "demo" not in ref
